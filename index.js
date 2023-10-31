@@ -1,60 +1,22 @@
-const express = require("express");
-const { ApolloServer } = require("@apollo/server");
-const { expressMiddleware } = require("@apollo/server/express4");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const { default: axios } = require("axios");
-
-const { USERS } = require("./user");
-const { TODOS } = require("./todo");
-
+const express = require('express');
+const mongoose = require('mongoose');
+const { ApolloServer } = require('apollo-server-express');
+const typeDefs = require('./schema');
+const resolvers = require('./resolver');
+const dotenv = require("dotenv");
+dotenv.config();
+const app = express();
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const server = new ApolloServer({ typeDefs, resolvers });
 async function startServer() {
-  const app = express();
-  const server = new ApolloServer({
-    typeDefs: `
-        type User {
-            id: ID!
-            name: String!
-            username: String!
-            email: String!
-            phone: String!
-            website: String!
-        }
-
-        type Todo {
-            id: ID!
-            title: String!
-            completed: Boolean
-            user: User
-        }
-
-        type Query {
-            getTodos: [Todo]
-            getAllUsers: [User]
-            getUser(id: ID!): User
-        }
-
-    `,
-    resolvers: {
-      Todo: {
-        user: (todo) => USERS.find((e) => e.id === todo.id),
-      },
-      Query: {
-        getTodos: () => TODOS,
-        getAllUsers: () => USERS,
-        getUser: async (parent, { id }) => USERS.find((e) => e.id === id),
-      },
-    },
-  });
-
-  app.use(bodyParser.json());
-  app.use(cors());
-
   await server.start();
-
-  app.use("/graphql", expressMiddleware(server));
-
-  app.listen(8000, () => console.log("Serevr Started at PORT 8000"));
+  server.applyMiddleware({ app });
 }
-
-startServer();
+startServer().then(() => {
+  app.listen({ port: 4000 }, () => {
+    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`);
+  });
+});

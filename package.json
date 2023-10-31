@@ -2,14 +2,21 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
   "license": "MIT",
   "dependencies": {
     "@apollo/server": "^4.7.5",
     "@types/axios": "^0.14.0",
+    "apollo-server-express": "^3.12.1",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "graphql": "^16.7.1"
+    "graphql": "^16.8.1",
+    "mongoose": "^7.6.4",
+    "nodemon": "^3.0.1"
   }
 }
